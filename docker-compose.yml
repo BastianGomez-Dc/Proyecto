@@ -1,0 +1,63 @@
+
+services:
+  db-usuarios:
+    image: mysql:8.0
+    container_name: mysql-usuarios
+    restart: always
+    environment:
+      MYSQL_DATABASE: usuarios_db
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_USER: usuario_user
+      MYSQL_PASSWORD: usuario_pass
+    ports:
+      - "3307:3306"
+    volumes:
+      - usuarios_data:/var/lib/mysql
+
+  db-componentes:
+    image: mysql:8.0
+    container_name: mysql-componentes
+    restart: always
+    environment:
+      MYSQL_DATABASE: componentes_db
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_USER: componente_user
+      MYSQL_PASSWORD: componente_pass
+    ports:
+      - "3308:3306"
+    volumes:
+      - componentes_data:/var/lib/mysql
+
+  db-tiposervicio:
+    image: mysql:8.0
+    container_name: mysql-tiposervicio
+    restart: always
+    environment:
+      MYSQL_DATABASE: tiposervicio_db
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_USER: tiposervicio_user
+      MYSQL_PASSWORD: tiposervicio_pass
+    ports:
+      - "3309:3306"
+    volumes:
+      - tiposervicio_data:/var/lib/mysql
+
+  db-mantencion:
+    image: mysql:8.0
+    container_name: mysql-mantencion
+    restart: always
+    environment:
+      MYSQL_DATABASE: mantencion_db
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_USER: mantencion_user
+      MYSQL_PASSWORD: mantencion_pass
+    ports:
+      - "3310:3306"
+    volumes:
+      - mantencion_data:/var/lib/mysql
+
+volumes:
+  usuarios_data:
+  componentes_data:
+  tiposervicio_data:
+  mantencion_data:
