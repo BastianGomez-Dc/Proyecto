@@ -74,9 +74,105 @@ El sistema se divide en tres módulos independientes para asegurar que un fallo 
 3. Orden de Trabajo: En el Servicio de Mantención, se describe el problema, se elige el tipo de servicio y se genera el presupuesto automáticamente.
 4. Cierre: Una vez realizado el trabajo, el sistema actualiza el estado a "Completado" y emite el total a cobrar.
 
-## 7. Stack Tecnológico Sugerido
+## 7. Stack Tecnológico
 
-- **Backend:** Java (Spring Boot)
-- **Base de Datos:** PostgreSQL (Relacional para usuarios y servicios)
-- **Comunicación:** API RESTful con JSON
-- **Contenedores:** Docker (para desplegar los 3 microservicios)
+- **Backend:** Java 25 + Spring Boot 4.1
+- **Base de Datos:** MySQL 8 (una instancia por microservicio)
+- **Comunicación:** API RESTful con JSON via RestTemplate
+- **Contenedores:** Docker Compose (bases de datos)
+- **Autenticación:** JWT (JJWT 0.12.6), validado centralmente en el BFF
+- **Build:** Gradle 9.4.1
+
+---
+
+## 8. Arquitectura Actual
+
+El sistema cuenta con cuatro microservicios y un BFF (Backend for Frontend) que actúa como único punto de entrada para el frontend.
+
+```
+Frontend
+    │
+    ▼
+┌─────────────────────────────────────┐
+│         BFF  (puerto 8085)          │
+│  • Valida JWT en todas las rutas    │
+│  • Redirige al microservicio        │
+│    correspondiente según el path    │
+└────────────┬────────────────────────┘
+             │
+     ┌───────┼───────────────────────┐
+     ▼       ▼           ▼           ▼
+ :8081    :8080       :8082       :8084
+usuarios  computador  tiposervicio mantencion
+ DB:3307   DB:3308     DB:3309     DB:3310
+```
+
+### Microservicios
+
+| Módulo | Puerto | Base de datos | Puerto DB |
+|---|---|---|---|
+| `bff` | 8085 | — | — |
+| `usuarios` | 8081 | `usuarios_db` | 3307 |
+| `computador` | 8080 | `componentes_db` | 3308 |
+| `tiposervicio` | 8082 | `tiposervicio_db` | 3309 |
+| `mantencion` | 8084 | `mantencion_db` | 3310 |
+
+### Tabla de rutas del BFF
+
+| Path | Microservicio destino |
+|---|---|
+| `POST /api/auth/login` | usuarios :8081 (público, sin token) |
+| `/api/usuarios/**` | usuarios :8081 |
+| `/api/computadores/**` | computador :8080 |
+| `/api/tiposervicios/**` | tiposervicio :8082 |
+| `/api/mantenciones/**` | mantencion :8084 |
+
+---
+
+## 9. Autenticación y seguridad
+
+1. El frontend llama a `POST /api/auth/login` en el BFF con `{ "username": "admin", "password": "admin123" }`.
+2. El BFF reenvía la petición a `usuarios`, que genera y devuelve un token JWT.
+3. El frontend incluye el token en todas las peticiones posteriores: `Authorization: Bearer <token>`.
+4. El `JwtFilter` del BFF valida el token antes de redirigir la petición.
+5. Los microservicios internos confían en el BFF y no validan el token por su cuenta.
+
+---
+
+## 10. Cómo levantar el proyecto
+
+### 1. Levantar las bases de datos
+
+```bash
+docker compose up -d
+```
+
+### 2. Arrancar cada microservicio (en terminales separadas)
+
+```bash
+# Desde cada carpeta de módulo:
+cd usuarios      && ./gradlew bootRun
+cd computador    && ./gradlew bootRun
+cd tiposervicio  && ./gradlew bootRun
+cd mantencion    && ./gradlew bootRun
+cd bff           && ./gradlew bootRun
+```
+
+El frontend apunta a `http://localhost:8085`.
+
+---
+
+## 11. Historial de cambios
+
+### Refactorización de código
+- Eliminada la duplicación de lógica en `UsuarioService`: la obtención de computadores y mantenciones se extrajo a métodos privados reutilizables (`fetchTiposServicio`, `obtenerComputadoresConMantenciones`, `fetchMantenciones`, `toResponse`).
+- Eliminado el endpoint duplicado `GET /api/usuarios/{rut}/detalles` (era idéntico a `GET /api/usuarios/{rut}`).
+- Reemplazado `ex.printStackTrace()` por `logger.error()` en todos los `GlobalExceptionHandler`.
+- Corregida la indentación inconsistente (tabs → espacios) en el módulo `mantencion`.
+- Eliminados comentarios Javadoc que solo repetían lo que el nombre del método ya expresaba.
+- Eliminadas referencias a clases con nombre completo (`java.util.ArrayList`) reemplazándolas por imports.
+
+### Adición del BFF
+- Nuevo módulo `bff` en el puerto `8085`.
+- El BFF es el único punto de entrada para el frontend; valida el JWT una sola vez para todas las rutas.
+- `SecurityConfig` en `usuarios` actualizado para permitir todas las peticiones (el servicio es interno al BFF).
