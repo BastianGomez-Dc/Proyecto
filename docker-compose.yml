@@ -110,7 +110,7 @@ services:
       db-tiposervicio:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-s", "http://localhost:8082/api/tiposervicios"]
+      test: ["CMD-SHELL", "bash -c 'cat < /dev/null > /dev/tcp/localhost/8082'"]
       interval: 15s
       timeout: 5s
       retries: 8
@@ -132,7 +132,7 @@ services:
       db-componentes:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-s", "http://localhost:8080/api/computadores"]
+      test: ["CMD-SHELL", "bash -c 'cat < /dev/null > /dev/tcp/localhost/8080'"]
       interval: 15s
       timeout: 5s
       retries: 8
@@ -154,7 +154,7 @@ services:
       db-mantencion:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-s", "http://localhost:8084/api/mantenciones"]
+      test: ["CMD-SHELL", "bash -c 'cat < /dev/null > /dev/tcp/localhost/8084'"]
       interval: 15s
       timeout: 5s
       retries: 8
@@ -185,7 +185,7 @@ services:
       svc-mantencion:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-s", "http://localhost:8081/api/usuarios"]
+      test: ["CMD-SHELL", "bash -c 'cat < /dev/null > /dev/tcp/localhost/8081'"]
       interval: 15s
       timeout: 5s
       retries: 8
@@ -208,7 +208,7 @@ services:
       svc-usuarios:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-s", "http://localhost:8085/api/auth/login"]
+      test: ["CMD-SHELL", "bash -c 'cat < /dev/null > /dev/tcp/localhost/8085'"]
       interval: 15s
       timeout: 5s
       retries: 8
