@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS usuarios (
+    rut VARCHAR(12) PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    gmail VARCHAR(150) NOT NULL,
+    telefono BIGINT NOT NULL
+);

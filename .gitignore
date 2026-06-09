@@ -1,0 +1,8 @@
+# Ignore build and IDE files
+**/build/
+**/.gradle/
+**/*.iml
+.vscode/
+*.log
+*.class
+**/out/
