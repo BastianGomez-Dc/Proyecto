@@ -9,6 +9,7 @@ import com.serviciotecnico.usuarios.model.Usuario;
 import com.serviciotecnico.usuarios.repository.UsuarioRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -22,8 +23,18 @@ import java.util.List;
 public class UsuarioService {
 
     private static final Logger logger = LoggerFactory.getLogger(UsuarioService.class);
+
     private final UsuarioRepository usuarioRepository;
     private final RestTemplate restTemplate = new RestTemplate();
+
+    @Value("${computador.service.url:http://localhost:8080}")
+    private String computadorUrl;
+
+    @Value("${tiposervicio.service.url:http://localhost:8082}")
+    private String tiposervicioUrl;
+
+    @Value("${mantencion.service.url:http://localhost:8084}")
+    private String mantencionUrl;
 
     public UsuarioService(UsuarioRepository usuarioRepository) {
         this.usuarioRepository = usuarioRepository;
@@ -98,7 +109,7 @@ public class UsuarioService {
     private List<TipoServicioDTO> fetchTiposServicio() {
         try {
             TipoServicioDTO[] tipos = restTemplate.getForObject(
-                    "http://localhost:8082/api/tiposervicios", TipoServicioDTO[].class);
+                    tiposervicioUrl + "/api/tiposervicios", TipoServicioDTO[].class);
             if (tipos != null) return Arrays.asList(tipos);
         } catch (Exception e) {
             logger.error("Error al obtener tipos de servicio: {}", e.getMessage());
@@ -110,7 +121,7 @@ public class UsuarioService {
         List<ComputadorDTO> result = new ArrayList<>();
         try {
             ComputadorDTO[] computadores = restTemplate.getForObject(
-                    "http://localhost:8080/api/computadores/cliente/" + rut, ComputadorDTO[].class);
+                    computadorUrl + "/api/computadores/cliente/" + rut, ComputadorDTO[].class);
             if (computadores == null) return result;
             for (ComputadorDTO pc : computadores) {
                 pc.setMantenciones(fetchMantenciones(pc, tiposServicio));
@@ -126,7 +137,7 @@ public class UsuarioService {
         List<MantencionDTO> mantenciones = new ArrayList<>();
         try {
             MantencionDTO[] tickets = restTemplate.getForObject(
-                    "http://localhost:8084/api/mantenciones/pc/" + pc.getIdPc(), MantencionDTO[].class);
+                    mantencionUrl + "/api/mantenciones/pc/" + pc.getIdPc(), MantencionDTO[].class);
             if (tickets != null) {
                 for (MantencionDTO ticket : tickets) {
                     ticket.setTipoServicioDetalle(encontrarDetalleTipoServicio(ticket.getTipoServicio(), tiposServicio));

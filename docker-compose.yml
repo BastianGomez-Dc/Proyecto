@@ -1,9 +1,13 @@
-
 services:
+
+  # ─────────────────────────────────────────
+  # Bases de datos
+  # ─────────────────────────────────────────
+
   db-usuarios:
     image: mysql:8.0
     container_name: mysql-usuarios
-    restart: always
+    restart: unless-stopped
     environment:
       MYSQL_DATABASE: usuarios_db
       MYSQL_ROOT_PASSWORD: root_password
@@ -13,11 +17,19 @@ services:
       - "3307:3306"
     volumes:
       - usuarios_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - serviciotecnico-net
 
   db-componentes:
     image: mysql:8.0
     container_name: mysql-componentes
-    restart: always
+    restart: unless-stopped
     environment:
       MYSQL_DATABASE: componentes_db
       MYSQL_ROOT_PASSWORD: root_password
@@ -27,11 +39,19 @@ services:
       - "3308:3306"
     volumes:
       - componentes_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - serviciotecnico-net
 
   db-tiposervicio:
     image: mysql:8.0
     container_name: mysql-tiposervicio
-    restart: always
+    restart: unless-stopped
     environment:
       MYSQL_DATABASE: tiposervicio_db
       MYSQL_ROOT_PASSWORD: root_password
@@ -41,11 +61,19 @@ services:
       - "3309:3306"
     volumes:
       - tiposervicio_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - serviciotecnico-net
 
   db-mantencion:
     image: mysql:8.0
     container_name: mysql-mantencion
-    restart: always
+    restart: unless-stopped
     environment:
       MYSQL_DATABASE: mantencion_db
       MYSQL_ROOT_PASSWORD: root_password
@@ -55,6 +83,146 @@ services:
       - "3310:3306"
     volumes:
       - mantencion_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - serviciotecnico-net
+
+  # ─────────────────────────────────────────
+  # Microservicios
+  # ─────────────────────────────────────────
+
+  svc-tiposervicio:
+    build: ./tiposervicio
+    container_name: svc-tiposervicio
+    restart: on-failure
+    ports:
+      - "8082:8082"
+    environment:
+      DB_URL: jdbc:mysql://db-tiposervicio:3306/tiposervicio_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USER: tiposervicio_user
+      DB_PASS: tiposervicio_pass
+    depends_on:
+      db-tiposervicio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-s", "http://localhost:8082/api/tiposervicios"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 60s
+    networks:
+      - serviciotecnico-net
+
+  svc-computador:
+    build: ./computador
+    container_name: svc-computador
+    restart: on-failure
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:mysql://db-componentes:3306/componentes_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USER: componente_user
+      DB_PASS: componente_pass
+    depends_on:
+      db-componentes:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-s", "http://localhost:8080/api/computadores"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 60s
+    networks:
+      - serviciotecnico-net
+
+  svc-mantencion:
+    build: ./mantencion
+    container_name: svc-mantencion
+    restart: on-failure
+    ports:
+      - "8084:8084"
+    environment:
+      DB_URL: jdbc:mysql://db-mantencion:3306/mantencion_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USER: mantencion_user
+      DB_PASS: mantencion_pass
+    depends_on:
+      db-mantencion:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-s", "http://localhost:8084/api/mantenciones"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 60s
+    networks:
+      - serviciotecnico-net
+
+  svc-usuarios:
+    build: ./usuarios
+    container_name: svc-usuarios
+    restart: on-failure
+    ports:
+      - "8081:8081"
+    environment:
+      DB_URL: jdbc:mysql://db-usuarios:3306/usuarios_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USER: usuario_user
+      DB_PASS: usuario_pass
+      COMPUTADOR_URL: http://svc-computador:8080
+      TIPOSERVICIO_URL: http://svc-tiposervicio:8082
+      MANTENCION_URL: http://svc-mantencion:8084
+    depends_on:
+      db-usuarios:
+        condition: service_healthy
+      svc-computador:
+        condition: service_healthy
+      svc-tiposervicio:
+        condition: service_healthy
+      svc-mantencion:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-s", "http://localhost:8081/api/usuarios"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 60s
+    networks:
+      - serviciotecnico-net
+
+  bff:
+    build: ./bff
+    container_name: svc-bff
+    restart: on-failure
+    ports:
+      - "8085:8085"
+    environment:
+      USUARIOS_URL: http://svc-usuarios:8081
+      COMPUTADOR_URL: http://svc-computador:8080
+      TIPOSERVICIO_URL: http://svc-tiposervicio:8082
+      MANTENCION_URL: http://svc-mantencion:8084
+    depends_on:
+      svc-usuarios:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-s", "http://localhost:8085/api/auth/login"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 60s
+    networks:
+      - serviciotecnico-net
+
+# ─────────────────────────────────────────
+# Redes y volúmenes
+# ─────────────────────────────────────────
+
+networks:
+  serviciotecnico-net:
+    driver: bridge
 
 volumes:
   usuarios_data:

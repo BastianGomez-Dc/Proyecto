@@ -141,24 +141,74 @@ usuarios  computador  tiposervicio mantencion
 
 ## 10. Cómo levantar el proyecto
 
-### 1. Levantar las bases de datos
+### Opción A — Todo con Docker (recomendado)
+
+Levanta las 4 bases de datos y los 5 microservicios en un solo comando:
 
 ```bash
-docker compose up -d
+docker compose up --build
 ```
 
-### 2. Arrancar cada microservicio (en terminales separadas)
+Docker respeta el orden de arranque automáticamente:
+
+```
+db-* (MySQL healthy)
+  → svc-tiposervicio · svc-computador · svc-mantencion (healthy)
+    → svc-usuarios (healthy)
+      → bff
+```
+
+Para detener y eliminar contenedores (los volúmenes con datos se conservan):
 
 ```bash
-# Desde cada carpeta de módulo:
-cd usuarios      && ./gradlew bootRun
-cd computador    && ./gradlew bootRun
+docker compose down
+```
+
+Para eliminar también los volúmenes (borra todos los datos):
+
+```bash
+docker compose down -v
+```
+
+---
+
+### Opción B — Solo bases de datos en Docker, microservicios en local
+
+Útil para desarrollo activo: las bases de datos corren en Docker y los servicios se ejecutan directamente con Gradle.
+
+**1. Levantar solo las bases de datos:**
+
+```bash
+docker compose up -d db-usuarios db-componentes db-tiposervicio db-mantencion
+```
+
+**2. Arrancar cada microservicio (en terminales separadas):**
+
+```bash
 cd tiposervicio  && ./gradlew bootRun
+cd computador    && ./gradlew bootRun
 cd mantencion    && ./gradlew bootRun
+cd usuarios      && ./gradlew bootRun
 cd bff           && ./gradlew bootRun
 ```
 
-El frontend apunta a `http://localhost:8085`.
+En ambos casos el frontend apunta a `http://localhost:8085`.
+
+---
+
+### Contenedores y puertos
+
+| Contenedor | Imagen / Build | Puerto host |
+|---|---|---|
+| `mysql-usuarios` | `mysql:8.0` | `3307` |
+| `mysql-componentes` | `mysql:8.0` | `3308` |
+| `mysql-tiposervicio` | `mysql:8.0` | `3309` |
+| `mysql-mantencion` | `mysql:8.0` | `3310` |
+| `svc-tiposervicio` | `./tiposervicio` | `8082` |
+| `svc-computador` | `./computador` | `8080` |
+| `svc-mantencion` | `./mantencion` | `8084` |
+| `svc-usuarios` | `./usuarios` | `8081` |
+| `svc-bff` | `./bff` | `8085` |
 
 ---
 
@@ -176,3 +226,12 @@ El frontend apunta a `http://localhost:8085`.
 - Nuevo módulo `bff` en el puerto `8085`.
 - El BFF es el único punto de entrada para el frontend; valida el JWT una sola vez para todas las rutas.
 - `SecurityConfig` en `usuarios` actualizado para permitir todas las peticiones (el servicio es interno al BFF).
+
+### Docker — containerización completa
+- `docker-compose.yml` reescrito para correr las 4 bases de datos **y** los 5 microservicios como contenedores.
+- Orden de arranque garantizado mediante `depends_on` con `condition: service_healthy`.
+- Health check en cada base de datos (`mysqladmin ping`) y en cada microservicio (`curl`).
+- Red compartida `serviciotecnico-net` (bridge) para comunicación interna entre contenedores por nombre de servicio.
+- `Dockerfile` multi-etapa para cada módulo: Gradle compila el fat JAR en la etapa `builder`; solo el JAR y el JDK mínimo van a la imagen final.
+- `.dockerignore` en cada módulo para excluir `.gradle/` y `build/` del contexto de build.
+- Todas las URLs y credenciales hardcodeadas reemplazadas por variables de entorno con valores por defecto para desarrollo local (`${VAR:default}`), inyectadas vía `@Value` en `UsuarioService` y `ProxyController`.

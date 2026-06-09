@@ -1,8 +1,10 @@
 package com.serviciotecnico.bff.controller;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -23,15 +25,31 @@ public class ProxyController {
 
     private static final Logger logger = LoggerFactory.getLogger(ProxyController.class);
 
-    private static final Map<String, String> ROUTES = Map.of(
-        "/api/auth",         "http://localhost:8081",
-        "/api/usuarios",     "http://localhost:8081",
-        "/api/computadores", "http://localhost:8080",
-        "/api/tiposervicios","http://localhost:8082",
-        "/api/mantenciones", "http://localhost:8084"
-    );
+    @Value("${usuarios.service.url:http://localhost:8081}")
+    private String usuariosUrl;
 
+    @Value("${computador.service.url:http://localhost:8080}")
+    private String computadorUrl;
+
+    @Value("${tiposervicio.service.url:http://localhost:8082}")
+    private String tiposervicioUrl;
+
+    @Value("${mantencion.service.url:http://localhost:8084}")
+    private String mantencionUrl;
+
+    private Map<String, String> routes;
     private final RestTemplate restTemplate = new RestTemplate();
+
+    @PostConstruct
+    private void initRoutes() {
+        routes = Map.of(
+            "/api/auth",          usuariosUrl,
+            "/api/usuarios",      usuariosUrl,
+            "/api/computadores",  computadorUrl,
+            "/api/tiposervicios", tiposervicioUrl,
+            "/api/mantenciones",  mantencionUrl
+        );
+    }
 
     @RequestMapping("/**")
     public ResponseEntity<byte[]> proxy(
@@ -41,7 +59,7 @@ public class ProxyController {
         String path = request.getRequestURI();
         String queryString = request.getQueryString();
 
-        String targetBase = ROUTES.entrySet().stream()
+        String targetBase = routes.entrySet().stream()
                 .filter(e -> path.startsWith(e.getKey()))
                 .map(Map.Entry::getValue)
                 .findFirst()
