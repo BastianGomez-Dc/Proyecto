@@ -1,5 +1,6 @@
 package com.serviciotecnico.mantencion.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -41,6 +42,7 @@ public class MantencionTicket {
 	@Column(name = "costo_total", nullable = false)
 	private Double costoTotal;
 
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	@Column(name = "fecha_entrada", nullable = false)
 	private LocalDateTime fechaEntrada;
 

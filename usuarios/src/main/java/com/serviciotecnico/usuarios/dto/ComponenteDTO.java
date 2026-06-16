@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ComponenteDTO {
-    private String marca;
     private String tipo;
+    private String marca;
+    private String modelo;
 }

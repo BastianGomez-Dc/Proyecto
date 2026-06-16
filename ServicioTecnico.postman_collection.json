@@ -1,0 +1,303 @@
+{
+  "info": {
+    "name": "Servicio Tecnico - BFF",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8085" },
+    { "key": "token",   "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) {",
+                  "  pm.collectionVariables.set('token', res.token);",
+                  "  console.log('Token guardado.');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api","auth","login"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Usuarios",
+      "item": [
+        {
+          "name": "Listar todos",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/usuarios", "host": ["{{baseUrl}}"], "path": ["api","usuarios"] }
+          }
+        },
+        {
+          "name": "Obtener por RUT",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/usuarios/12345678-9", "host": ["{{baseUrl}}"], "path": ["api","usuarios","12345678-9"] }
+          }
+        },
+        {
+          "name": "Crear usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rut\": \"12345678-9\",\n  \"nombre\": \"Juan\",\n  \"apellido\": \"Perez\",\n  \"gmail\": \"juan.perez@gmail.com\",\n  \"telefono\": 912345678\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/usuarios", "host": ["{{baseUrl}}"], "path": ["api","usuarios"] }
+          }
+        },
+        {
+          "name": "Actualizar usuario",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rut\": \"12345678-9\",\n  \"nombre\": \"Juan Actualizado\",\n  \"apellido\": \"Perez\",\n  \"gmail\": \"juan.perez@gmail.com\",\n  \"telefono\": 912345678\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/usuarios/12345678-9", "host": ["{{baseUrl}}"], "path": ["api","usuarios","12345678-9"] }
+          }
+        },
+        {
+          "name": "Eliminar usuario",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/usuarios/12345678-9", "host": ["{{baseUrl}}"], "path": ["api","usuarios","12345678-9"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Computadores",
+      "item": [
+        {
+          "name": "Listar todos",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/computadores", "host": ["{{baseUrl}}"], "path": ["api","computadores"] }
+          }
+        },
+        {
+          "name": "Obtener por ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/computadores/00000000-0000-0000-0000-000000000000", "host": ["{{baseUrl}}"], "path": ["api","computadores","00000000-0000-0000-0000-000000000000"] }
+          }
+        },
+        {
+          "name": "Listar por RUT cliente",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/computadores/cliente/12345678-9", "host": ["{{baseUrl}}"], "path": ["api","computadores","cliente","12345678-9"] }
+          }
+        },
+        {
+          "name": "Crear computador",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rutDueno\": \"12345678-9\",\n  \"componentes\": [\n    { \"tipo\": \"Procesador\",     \"marca\": \"Intel\",   \"modelo\": \"Core i7-12700K\" },\n    { \"tipo\": \"Fuente de Poder\", \"marca\": \"Corsair\", \"modelo\": \"RM750x\" },\n    { \"tipo\": \"RAM\",            \"marca\": \"Kingston\", \"modelo\": \"Fury Beast 16GB\" },\n    { \"tipo\": \"Almacenamiento\", \"marca\": \"Samsung\",  \"modelo\": \"SSD 870 EVO 1TB\" },\n    { \"tipo\": \"Tarjeta Madre\",  \"marca\": \"ASUS\",    \"modelo\": \"ROG Strix B660-F\" },\n    { \"tipo\": \"Tarjeta de Video\",\"marca\": \"NVIDIA\",  \"modelo\": \"RTX 3060\" }\n  ]\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/computadores", "host": ["{{baseUrl}}"], "path": ["api","computadores"] }
+          }
+        },
+        {
+          "name": "Actualizar computador",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rutDueno\": \"12345678-9\",\n  \"componentes\": [\n    { \"tipo\": \"Procesador\",     \"marca\": \"AMD\",     \"modelo\": \"Ryzen 7 5800X\" },\n    { \"tipo\": \"Fuente de Poder\", \"marca\": \"EVGA\",    \"modelo\": \"SuperNOVA 650 G5\" },\n    { \"tipo\": \"RAM\",            \"marca\": \"Corsair\", \"modelo\": \"Vengeance 32GB\" },\n    { \"tipo\": \"Almacenamiento\", \"marca\": \"WD\",      \"modelo\": \"Black SN850 1TB\" }\n  ]\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/computadores/00000000-0000-0000-0000-000000000000", "host": ["{{baseUrl}}"], "path": ["api","computadores","00000000-0000-0000-0000-000000000000"] }
+          }
+        },
+        {
+          "name": "Eliminar computador",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/computadores/00000000-0000-0000-0000-000000000000", "host": ["{{baseUrl}}"], "path": ["api","computadores","00000000-0000-0000-0000-000000000000"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tipos de Servicio",
+      "item": [
+        {
+          "name": "Listar todos",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/tiposervicios", "host": ["{{baseUrl}}"], "path": ["api","tiposervicios"] }
+          }
+        },
+        {
+          "name": "Obtener por ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/tiposervicios/1", "host": ["{{baseUrl}}"], "path": ["api","tiposervicios","1"] }
+          }
+        },
+        {
+          "name": "Crear tipo de servicio",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Diagnostico\",\n  \"descripcion\": \"Revision general del equipo\",\n  \"costoBase\": 15000\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/tiposervicios", "host": ["{{baseUrl}}"], "path": ["api","tiposervicios"] }
+          }
+        },
+        {
+          "name": "Actualizar tipo de servicio",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Diagnostico Completo\",\n  \"descripcion\": \"Revision exhaustiva del equipo\",\n  \"costoBase\": 20000\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/tiposervicios/1", "host": ["{{baseUrl}}"], "path": ["api","tiposervicios","1"] }
+          }
+        },
+        {
+          "name": "Eliminar tipo de servicio",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/tiposervicios/1", "host": ["{{baseUrl}}"], "path": ["api","tiposervicios","1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mantenciones",
+      "item": [
+        {
+          "name": "Listar todas",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/mantenciones", "host": ["{{baseUrl}}"], "path": ["api","mantenciones"] }
+          }
+        },
+        {
+          "name": "Obtener por ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/mantenciones/00000000-0000-0000-0000-000000000000", "host": ["{{baseUrl}}"], "path": ["api","mantenciones","00000000-0000-0000-0000-000000000000"] }
+          }
+        },
+        {
+          "name": "Listar por PC",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/mantenciones/pc/00000000-0000-0000-0000-000000000000", "host": ["{{baseUrl}}"], "path": ["api","mantenciones","pc","00000000-0000-0000-0000-000000000000"] }
+          }
+        },
+        {
+          "name": "Crear mantencion",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idPc\": \"00000000-0000-0000-0000-000000000000\",\n  \"motivo\": \"El equipo no enciende\",\n  \"tipoServicio\": \"REPARACION\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/mantenciones", "host": ["{{baseUrl}}"], "path": ["api","mantenciones"] }
+          }
+        },
+        {
+          "name": "Actualizar mantencion",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idPc\": \"00000000-0000-0000-0000-000000000000\",\n  \"motivo\": \"El equipo no enciende - actualizado\",\n  \"tipoServicio\": \"LIMPIEZA_PROFUNDA\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/mantenciones/00000000-0000-0000-0000-000000000000", "host": ["{{baseUrl}}"], "path": ["api","mantenciones","00000000-0000-0000-0000-000000000000"] }
+          }
+        },
+        {
+          "name": "Completar mantencion",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/mantenciones/00000000-0000-0000-0000-000000000000/completar", "host": ["{{baseUrl}}"], "path": ["api","mantenciones","00000000-0000-0000-0000-000000000000","completar"] }
+          }
+        },
+        {
+          "name": "Eliminar mantencion",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/mantenciones/00000000-0000-0000-0000-000000000000", "host": ["{{baseUrl}}"], "path": ["api","mantenciones","00000000-0000-0000-0000-000000000000"] }
+          }
+        }
+      ]
+    }
+  ]
+}

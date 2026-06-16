@@ -15,8 +15,11 @@ import lombok.NoArgsConstructor;
 public class Componente {
 
     @Column(nullable = false)
-    private String marca;
+    private String tipo;
 
     @Column(nullable = false)
-    private String tipo;
+    private String marca;
+
+    @Column
+    private String modelo;
 }

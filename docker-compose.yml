@@ -216,10 +216,6 @@ services:
     networks:
       - serviciotecnico-net
 
-# ─────────────────────────────────────────
-# Redes y volúmenes
-# ─────────────────────────────────────────
-
 networks:
   serviciotecnico-net:
     driver: bridge
