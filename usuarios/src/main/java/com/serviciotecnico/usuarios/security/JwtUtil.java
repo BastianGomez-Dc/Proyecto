@@ -1,6 +1,5 @@
 package com.serviciotecnico.usuarios.security;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
@@ -25,24 +24,4 @@ public class JwtUtil {
                 .compact();
     }
 
-    public String extraerUsername(String token) {
-        return getClaims(token).getSubject();
-    }
-
-    public boolean esValido(String token) {
-        try {
-            getClaims(token);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private Claims getClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-    }
 }

@@ -159,7 +159,7 @@ El BFF tiene dos responsabilidades: validar el JWT y redirigir el request al mic
 Request
   │
   ▼
-JwtFilter.java          →  Lee "Authorization: Bearer <token>", valida firma
+JwtAuthenticationFilter.java →  Lee "Authorization: Bearer <token>", valida firma
   │                        Si el token es inválido → 401 automático
   ▼
 SecurityConfig.java     →  /api/auth/** es público, todo lo demás requiere autenticación

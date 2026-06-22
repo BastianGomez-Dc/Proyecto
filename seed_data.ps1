@@ -1,15 +1,34 @@
 # Seeding and Data Improvement Script for Servicio Tecnico Microservices
 # This script cleans up old stale test data and populates clean, distributed test data
 # across distinct users, computers, and tickets.
+# All requests go through the BFF (port 8085), which is the only public entry point.
 
 $ErrorActionPreference = "Stop"
 
 # Set encoding to ASCII/UTF8 for clean consoles
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
+$baseUrl = "http://localhost:8085"
+
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host " INICIANDO LIMPIEZA Y CARGA DE DATOS (SEEDING) DE PRUEBA   " -ForegroundColor Cyan
 Write-Host "==========================================================" -ForegroundColor Cyan
+
+# ---------------------------------------------------------
+# 0. LOGIN
+# ---------------------------------------------------------
+Write-Host "`n[0/3] Autenticando contra el BFF..." -ForegroundColor Yellow
+$loginBody = @{ username = "admin"; password = "admin123" } | ConvertTo-Json
+$loginRes = Invoke-RestMethod -Uri "$baseUrl/api/auth/login" -Method Post -ContentType "application/json" -Body $loginBody
+$token = $loginRes.token
+if (-not $token) {
+    throw "No se pudo obtener el token. Verifica que el BFF este activo en $baseUrl."
+}
+$headers = @{
+    "Content-Type"  = "application/json"
+    "Authorization" = "Bearer $token"
+}
+Write-Host "    Token obtenido correctamente." -ForegroundColor Gray
 
 # ---------------------------------------------------------
 # 1. LIMPIEZA DE DATOS EXISTENTES
@@ -19,55 +38,55 @@ Write-Host "`n[1/3] Limpiando datos existentes..." -ForegroundColor Yellow
 # A. Limpiar Tickets de Mantencion
 Write-Host " -> Consultando tickets de mantencion..."
 try {
-    $tickets = Invoke-RestMethod -Uri "http://localhost:8084/api/mantenciones" -Method Get
+    $tickets = Invoke-RestMethod -Uri "$baseUrl/api/mantenciones" -Method Get -Headers $headers
     if ($tickets -and $tickets.Count -gt 0) {
         Write-Host "    Se encontraron $($tickets.Count) tickets. Eliminandolos..." -ForegroundColor Gray
         foreach ($t in $tickets) {
             $id = $t.idTicket
             Write-Host "    Eliminando ticket: $id" -ForegroundColor Gray
-            Invoke-RestMethod -Uri "http://localhost:8084/api/mantenciones/$id" -Method Delete
+            Invoke-RestMethod -Uri "$baseUrl/api/mantenciones/$id" -Method Delete -Headers $headers
         }
     } else {
         Write-Host "    No se encontraron tickets de mantencion previos." -ForegroundColor Gray
     }
 } catch {
-    Write-Host "    Aviso: No se pudo consultar o limpiar los tickets de mantencion. Asegurate de que el servicio en el puerto 8084 este activo." -ForegroundColor Red
+    Write-Host "    Aviso: No se pudo consultar o limpiar los tickets de mantencion. Asegurate de que el BFF y el servicio de mantencion esten activos." -ForegroundColor Red
 }
 
 # B. Limpiar Computadores
 Write-Host " -> Consultando computadores..."
 try {
-    $pcs = Invoke-RestMethod -Uri "http://localhost:8080/api/computadores" -Method Get
+    $pcs = Invoke-RestMethod -Uri "$baseUrl/api/computadores" -Method Get -Headers $headers
     if ($pcs -and $pcs.Count -gt 0) {
         Write-Host "    Se encontraron $($pcs.Count) computadores. Eliminandolos..." -ForegroundColor Gray
         foreach ($pc in $pcs) {
             $id = $pc.idPc
             Write-Host "    Eliminando computador: $id" -ForegroundColor Gray
-            Invoke-RestMethod -Uri "http://localhost:8080/api/computadores/$id" -Method Delete
+            Invoke-RestMethod -Uri "$baseUrl/api/computadores/$id" -Method Delete -Headers $headers
         }
     } else {
         Write-Host "    No se encontraron computadores previos." -ForegroundColor Gray
     }
 } catch {
-    Write-Host "    Aviso: No se pudo consultar o limpiar los computadores. Asegurate de que el servicio en el puerto 8080 este activo." -ForegroundColor Red
+    Write-Host "    Aviso: No se pudo consultar o limpiar los computadores. Asegurate de que el BFF y el servicio de computador esten activos." -ForegroundColor Red
 }
 
 # C. Limpiar Usuarios
 Write-Host " -> Consultando usuarios..."
 try {
-    $usuarios = Invoke-RestMethod -Uri "http://localhost:8081/api/usuarios" -Method Get
+    $usuarios = Invoke-RestMethod -Uri "$baseUrl/api/usuarios" -Method Get -Headers $headers
     if ($usuarios -and $usuarios.Count -gt 0) {
         Write-Host "    Se encontraron $($usuarios.Count) usuarios. Eliminandolos..." -ForegroundColor Gray
         foreach ($u in $usuarios) {
             $rut = $u.rut
             Write-Host "    Eliminando usuario: $rut" -ForegroundColor Gray
-            Invoke-RestMethod -Uri "http://localhost:8081/api/usuarios/$rut" -Method Delete
+            Invoke-RestMethod -Uri "$baseUrl/api/usuarios/$rut" -Method Delete -Headers $headers
         }
     } else {
         Write-Host "    No se encontraron usuarios previos." -ForegroundColor Gray
     }
 } catch {
-    Write-Host "    Aviso: No se pudo consultar o limpiar los usuarios. Asegurate de que el servicio en el puerto 8081 este activo." -ForegroundColor Red
+    Write-Host "    Aviso: No se pudo consultar o limpiar los usuarios. Asegurate de que el BFF y el servicio de usuarios esten activos." -ForegroundColor Red
 }
 
 Write-Host "Limpieza completada con exito." -ForegroundColor Green
@@ -78,10 +97,6 @@ Write-Host "Limpieza completada con exito." -ForegroundColor Green
 # ---------------------------------------------------------
 Write-Host "`n[2/3] Creando datos de prueba distribuidos..." -ForegroundColor Yellow
 
-$headers = @{
-    "Content-Type" = "application/json"
-}
-
 # --- USUARIO 1: Juan Perez ---
 Write-Host " -> Creando Usuario 1: Juan Perez (12345678-5)..." -ForegroundColor Gray
 $user1 = @{
@@ -91,7 +106,7 @@ $user1 = @{
     gmail = "juan.perez@gmail.com"
     telefono = [long]987654321
 } | ConvertTo-Json
-$u1Res = Invoke-RestMethod -Uri "http://localhost:8081/api/usuarios" -Method Post -Headers $headers -Body $user1
+$u1Res = Invoke-RestMethod -Uri "$baseUrl/api/usuarios" -Method Post -Headers $headers -Body $user1
 
 # Computador para Juan Perez
 Write-Host "    Creando computador para Juan Perez..." -ForegroundColor Gray
@@ -105,7 +120,7 @@ $pcJuan = @{
         @{ marca = "NVIDIA GTX 1650 4GB GDDR5"; tipo = "GPU" }
     )
 } | ConvertTo-Json -Depth 5
-$pcJuanRes = Invoke-RestMethod -Uri "http://localhost:8080/api/computadores" -Method Post -Headers $headers -Body $pcJuan
+$pcJuanRes = Invoke-RestMethod -Uri "$baseUrl/api/computadores" -Method Post -Headers $headers -Body $pcJuan
 $idPcJuan = $pcJuanRes.idPc
 
 # Ticket de Mantencion para Juan Perez
@@ -115,7 +130,7 @@ $ticketJuan = @{
     motivo = "Limpieza y mantencion preventiva por sobrecalentamiento"
     tipoServicio = "LIMPIEZA_SUPERFICIAL"
 } | ConvertTo-Json
-$tJuanRes = Invoke-RestMethod -Uri "http://localhost:8084/api/mantenciones" -Method Post -Headers $headers -Body $ticketJuan
+$tJuanRes = Invoke-RestMethod -Uri "$baseUrl/api/mantenciones" -Method Post -Headers $headers -Body $ticketJuan
 
 
 # --- USUARIO 2: Maria Gonzalez ---
@@ -127,7 +142,7 @@ $user2 = @{
     gmail = "maria.gonzalez@gmail.com"
     telefono = [long]976543210
 } | ConvertTo-Json
-$u2Res = Invoke-RestMethod -Uri "http://localhost:8081/api/usuarios" -Method Post -Headers $headers -Body $user2
+$u2Res = Invoke-RestMethod -Uri "$baseUrl/api/usuarios" -Method Post -Headers $headers -Body $user2
 
 # Computador para Maria Gonzalez
 Write-Host "    Creando computador para Maria Gonzalez..." -ForegroundColor Gray
@@ -141,7 +156,7 @@ $pcMaria = @{
         @{ marca = "Intel Iris Xe Graphics"; tipo = "GPU" }
     )
 } | ConvertTo-Json -Depth 5
-$pcMariaRes = Invoke-RestMethod -Uri "http://localhost:8080/api/computadores" -Method Post -Headers $headers -Body $pcMaria
+$pcMariaRes = Invoke-RestMethod -Uri "$baseUrl/api/computadores" -Method Post -Headers $headers -Body $pcMaria
 $idPcMaria = $pcMariaRes.idPc
 
 # Ticket de Mantencion para Maria Gonzalez
@@ -151,7 +166,7 @@ $ticketMaria = @{
     motivo = "Optimizacion de software y limpieza de inicio lento"
     tipoServicio = "OPTIMIZACION"
 } | ConvertTo-Json
-$tMariaRes = Invoke-RestMethod -Uri "http://localhost:8084/api/mantenciones" -Method Post -Headers $headers -Body $ticketMaria
+$tMariaRes = Invoke-RestMethod -Uri "$baseUrl/api/mantenciones" -Method Post -Headers $headers -Body $ticketMaria
 
 
 # --- USUARIO 3: Carlos Munoz ---
@@ -163,7 +178,7 @@ $user3 = @{
     gmail = "carlos.munoz@gmail.com"
     telefono = [long]965432109
 } | ConvertTo-Json
-$u3Res = Invoke-RestMethod -Uri "http://localhost:8081/api/usuarios" -Method Post -Headers $headers -Body $user3
+$u3Res = Invoke-RestMethod -Uri "$baseUrl/api/usuarios" -Method Post -Headers $headers -Body $user3
 
 # Computador para Carlos Munoz
 Write-Host "    Creando computador para Carlos Munoz..." -ForegroundColor Gray
@@ -177,7 +192,7 @@ $pcCarlos = @{
         @{ marca = "NVIDIA GTX 1650 Super 4GB"; tipo = "GPU" }
     )
 } | ConvertTo-Json -Depth 5
-$pcCarlosRes = Invoke-RestMethod -Uri "http://localhost:8080/api/computadores" -Method Post -Headers $headers -Body $pcCarlos
+$pcCarlosRes = Invoke-RestMethod -Uri "$baseUrl/api/computadores" -Method Post -Headers $headers -Body $pcCarlos
 $idPcCarlos = $pcCarlosRes.idPc
 
 # Ticket de Mantencion para Carlos Munoz
@@ -187,11 +202,11 @@ $ticketCarlos = @{
     motivo = "Pantalla parpadea y puerto USB-C no responde"
     tipoServicio = "REPARACION"
 } | ConvertTo-Json
-$tCarlosRes = Invoke-RestMethod -Uri "http://localhost:8084/api/mantenciones" -Method Post -Headers $headers -Body $ticketCarlos
+$tCarlosRes = Invoke-RestMethod -Uri "$baseUrl/api/mantenciones" -Method Post -Headers $headers -Body $ticketCarlos
 
 # Completar el ticket de Carlos Munoz para mostrar estados diferentes
 Write-Host "    Completando el ticket de mantencion de Carlos Munoz..." -ForegroundColor Gray
-$ticketCarlosCompletado = Invoke-RestMethod -Uri "http://localhost:8084/api/mantenciones/$($tCarlosRes.idTicket)/completar" -Method Put
+$ticketCarlosCompletado = Invoke-RestMethod -Uri "$baseUrl/api/mantenciones/$($tCarlosRes.idTicket)/completar" -Method Put -Headers $headers
 
 Write-Host "Datos creados y distribuidos exitosamente." -ForegroundColor Green
 
@@ -201,7 +216,7 @@ Write-Host "Datos creados y distribuidos exitosamente." -ForegroundColor Green
 # ---------------------------------------------------------
 Write-Host "`n[3/3] Consultando listado enriquecido de usuarios para verificar distribucion..." -ForegroundColor Yellow
 
-$response = Invoke-RestMethod -Uri "http://localhost:8081/api/usuarios" -Method Get
+$response = Invoke-RestMethod -Uri "$baseUrl/api/usuarios" -Method Get -Headers $headers
 Write-Host "Usuarios cargados en total: $($response.Count)" -ForegroundColor Green
 
 Write-Host "`nDetalle de la distribucion de computadores y servicios por usuario:" -ForegroundColor Cyan
@@ -213,14 +228,14 @@ foreach ($user in $response) {
         Write-Host "Computadores asociados: $($user.computadores.Count)" -ForegroundColor Green
         foreach ($pc in $user.computadores) {
             Write-Host "  -> PC ID: $($pc.idPc)" -ForegroundColor DarkCyan
-            
+
             # Componentes
             $comps = @()
             foreach ($comp in $pc.componentes) {
                 $comps += "$($comp.tipo) ($($comp.marca))"
             }
             Write-Host "     Componentes: $($comps -join ', ')" -ForegroundColor DarkGray
-            
+
             # Mantenciones
             if ($pc.mantenciones -and $pc.mantenciones.Count -gt 0) {
                 foreach ($m in $pc.mantenciones) {
