@@ -36,6 +36,6 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationEntryPoint authenticationEntryPoint() {
-        return (request, response, authException) -> response.sendError(401, "Unauthorized");
+        return (request, response, authException) -> response.sendError(403, "Forbidden");
     }
 }
