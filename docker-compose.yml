@@ -1,3 +1,5 @@
+x-jwt-secret: &jwt-secret "/S5Vnptunwf1oJ3Km8TwM8JbokaxFXDqh3TEIs/b0FU="
+
 services:
 
   # ─────────────────────────────────────────
@@ -167,6 +169,7 @@ services:
       COMPUTADOR_URL: http://svc-computador:8080
       TIPOSERVICIO_URL: http://svc-tiposervicio:8082
       MANTENCION_URL: http://svc-mantencion:8084
+      JWT_SECRET: *jwt-secret
     depends_on:
       db-usuarios:
         condition: service_healthy
@@ -196,6 +199,7 @@ services:
       COMPUTADOR_URL: http://svc-computador:8080
       TIPOSERVICIO_URL: http://svc-tiposervicio:8082
       MANTENCION_URL: http://svc-mantencion:8084
+      JWT_SECRET: *jwt-secret
     depends_on:
       svc-usuarios:
         condition: service_healthy

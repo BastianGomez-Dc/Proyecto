@@ -40,14 +40,14 @@
       ]
     },
     {
-      "name": "Usuarios",
+      "name": "Clientes",
       "item": [
         {
           "name": "Listar todos",
           "request": {
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": { "raw": "{{baseUrl}}/api/usuarios", "host": ["{{baseUrl}}"], "path": ["api","usuarios"] }
+            "url": { "raw": "{{baseUrl}}/api/customers", "host": ["{{baseUrl}}"], "path": ["api","customers"] }
           }
         },
         {
@@ -55,11 +55,11 @@
           "request": {
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": { "raw": "{{baseUrl}}/api/usuarios/12345678-9", "host": ["{{baseUrl}}"], "path": ["api","usuarios","12345678-9"] }
+            "url": { "raw": "{{baseUrl}}/api/customers/12345678-9", "host": ["{{baseUrl}}"], "path": ["api","customers","12345678-9"] }
           }
         },
         {
-          "name": "Crear usuario",
+          "name": "Crear cliente",
           "request": {
             "method": "POST",
             "header": [
@@ -68,13 +68,13 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"rut\": \"12345678-9\",\n  \"nombre\": \"Juan\",\n  \"apellido\": \"Perez\",\n  \"gmail\": \"juan.perez@gmail.com\",\n  \"telefono\": 912345678\n}"
+              "raw": "{\n  \"rut\": \"12345678-9\",\n  \"firstName\": \"Juan\",\n  \"lastName\": \"Perez\",\n  \"gmail\": \"juan.perez@gmail.com\",\n  \"phone\": 912345678\n}"
             },
-            "url": { "raw": "{{baseUrl}}/api/usuarios", "host": ["{{baseUrl}}"], "path": ["api","usuarios"] }
+            "url": { "raw": "{{baseUrl}}/api/customers", "host": ["{{baseUrl}}"], "path": ["api","customers"] }
           }
         },
         {
-          "name": "Actualizar usuario",
+          "name": "Actualizar cliente",
           "request": {
             "method": "PUT",
             "header": [
@@ -83,17 +83,17 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"rut\": \"12345678-9\",\n  \"nombre\": \"Juan Actualizado\",\n  \"apellido\": \"Perez\",\n  \"gmail\": \"juan.perez@gmail.com\",\n  \"telefono\": 912345678\n}"
+              "raw": "{\n  \"rut\": \"12345678-9\",\n  \"firstName\": \"Juan Actualizado\",\n  \"lastName\": \"Perez\",\n  \"gmail\": \"juan.perez@gmail.com\",\n  \"phone\": 912345678\n}"
             },
-            "url": { "raw": "{{baseUrl}}/api/usuarios/12345678-9", "host": ["{{baseUrl}}"], "path": ["api","usuarios","12345678-9"] }
+            "url": { "raw": "{{baseUrl}}/api/customers/12345678-9", "host": ["{{baseUrl}}"], "path": ["api","customers","12345678-9"] }
           }
         },
         {
-          "name": "Eliminar usuario",
+          "name": "Eliminar cliente",
           "request": {
             "method": "DELETE",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": { "raw": "{{baseUrl}}/api/usuarios/12345678-9", "host": ["{{baseUrl}}"], "path": ["api","usuarios","12345678-9"] }
+            "url": { "raw": "{{baseUrl}}/api/customers/12345678-9", "host": ["{{baseUrl}}"], "path": ["api","customers","12345678-9"] }
           }
         }
       ]
@@ -106,7 +106,7 @@
           "request": {
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": { "raw": "{{baseUrl}}/api/computadores", "host": ["{{baseUrl}}"], "path": ["api","computadores"] }
+            "url": { "raw": "{{baseUrl}}/api/computers", "host": ["{{baseUrl}}"], "path": ["api","computers"] }
           }
         },
         {
@@ -114,7 +114,7 @@
           "request": {
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": { "raw": "{{baseUrl}}/api/computadores/00000000-0000-0000-0000-000000000000", "host": ["{{baseUrl}}"], "path": ["api","computadores","00000000-0000-0000-0000-000000000000"] }
+            "url": { "raw": "{{baseUrl}}/api/computers/00000000-0000-0000-0000-000000000000", "host": ["{{baseUrl}}"], "path": ["api","computers","00000000-0000-0000-0000-000000000000"] }
           }
         },
         {
@@ -122,7 +122,7 @@
           "request": {
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": { "raw": "{{baseUrl}}/api/computadores/cliente/12345678-9", "host": ["{{baseUrl}}"], "path": ["api","computadores","cliente","12345678-9"] }
+            "url": { "raw": "{{baseUrl}}/api/computers/customer/12345678-9", "host": ["{{baseUrl}}"], "path": ["api","computers","customer","12345678-9"] }
           }
         },
         {
@@ -135,9 +135,9 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"rutDueno\": \"12345678-9\",\n  \"componentes\": [\n    { \"tipo\": \"Procesador\",     \"marca\": \"Intel\",   \"modelo\": \"Core i7-12700K\" },\n    { \"tipo\": \"Fuente de Poder\", \"marca\": \"Corsair\", \"modelo\": \"RM750x\" },\n    { \"tipo\": \"RAM\",            \"marca\": \"Kingston\", \"modelo\": \"Fury Beast 16GB\" },\n    { \"tipo\": \"Almacenamiento\", \"marca\": \"Samsung\",  \"modelo\": \"SSD 870 EVO 1TB\" },\n    { \"tipo\": \"Tarjeta Madre\",  \"marca\": \"ASUS\",    \"modelo\": \"ROG Strix B660-F\" },\n    { \"tipo\": \"Tarjeta de Video\",\"marca\": \"NVIDIA\",  \"modelo\": \"RTX 3060\" }\n  ]\n}"
+              "raw": "{\n  \"ownerRut\": \"12345678-9\",\n  \"components\": [\n    { \"type\": \"Procesador\",     \"brand\": \"Intel\",   \"model\": \"Core i7-12700K\" },\n    { \"type\": \"Fuente de Poder\", \"brand\": \"Corsair\", \"model\": \"RM750x\" },\n    { \"type\": \"RAM\",            \"brand\": \"Kingston\", \"model\": \"Fury Beast 16GB\" },\n    { \"type\": \"Almacenamiento\", \"brand\": \"Samsung\",  \"model\": \"SSD 870 EVO 1TB\" },\n    { \"type\": \"Tarjeta Madre\",  \"brand\": \"ASUS\",    \"model\": \"ROG Strix B660-F\" },\n    { \"type\": \"Tarjeta de Video\",\"brand\": \"NVIDIA\",  \"model\": \"RTX 3060\" }\n  ]\n}"
             },
-            "url": { "raw": "{{baseUrl}}/api/computadores", "host": ["{{baseUrl}}"], "path": ["api","computadores"] }
+            "url": { "raw": "{{baseUrl}}/api/computers", "host": ["{{baseUrl}}"], "path": ["api","computers"] }
           }
         },
         {
@@ -150,9 +150,9 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"rutDueno\": \"12345678-9\",\n  \"componentes\": [\n    { \"tipo\": \"Procesador\",     \"marca\": \"AMD\",     \"modelo\": \"Ryzen 7 5800X\" },\n    { \"tipo\": \"Fuente de Poder\", \"marca\": \"EVGA\",    \"modelo\": \"SuperNOVA 650 G5\" },\n    { \"tipo\": \"RAM\",            \"marca\": \"Corsair\", \"modelo\": \"Vengeance 32GB\" },\n    { \"tipo\": \"Almacenamiento\", \"marca\": \"WD\",      \"modelo\": \"Black SN850 1TB\" }\n  ]\n}"
+              "raw": "{\n  \"ownerRut\": \"12345678-9\",\n  \"components\": [\n    { \"type\": \"Procesador\",     \"brand\": \"AMD\",     \"model\": \"Ryzen 7 5800X\" },\n    { \"type\": \"Fuente de Poder\", \"brand\": \"EVGA\",    \"model\": \"SuperNOVA 650 G5\" },\n    { \"type\": \"RAM\",            \"brand\": \"Corsair\", \"model\": \"Vengeance 32GB\" },\n    { \"type\": \"Almacenamiento\", \"brand\": \"WD\",      \"model\": \"Black SN850 1TB\" }\n  ]\n}"
             },
-            "url": { "raw": "{{baseUrl}}/api/computadores/00000000-0000-0000-0000-000000000000", "host": ["{{baseUrl}}"], "path": ["api","computadores","00000000-0000-0000-0000-000000000000"] }
+            "url": { "raw": "{{baseUrl}}/api/computers/00000000-0000-0000-0000-000000000000", "host": ["{{baseUrl}}"], "path": ["api","computers","00000000-0000-0000-0000-000000000000"] }
           }
         },
         {
@@ -160,7 +160,7 @@
           "request": {
             "method": "DELETE",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": { "raw": "{{baseUrl}}/api/computadores/00000000-0000-0000-0000-000000000000", "host": ["{{baseUrl}}"], "path": ["api","computadores","00000000-0000-0000-0000-000000000000"] }
+            "url": { "raw": "{{baseUrl}}/api/computers/00000000-0000-0000-0000-000000000000", "host": ["{{baseUrl}}"], "path": ["api","computers","00000000-0000-0000-0000-000000000000"] }
           }
         }
       ]
@@ -173,7 +173,7 @@
           "request": {
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": { "raw": "{{baseUrl}}/api/tiposervicios", "host": ["{{baseUrl}}"], "path": ["api","tiposervicios"] }
+            "url": { "raw": "{{baseUrl}}/api/service-types", "host": ["{{baseUrl}}"], "path": ["api","service-types"] }
           }
         },
         {
@@ -181,7 +181,7 @@
           "request": {
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": { "raw": "{{baseUrl}}/api/tiposervicios/1", "host": ["{{baseUrl}}"], "path": ["api","tiposervicios","1"] }
+            "url": { "raw": "{{baseUrl}}/api/service-types/1", "host": ["{{baseUrl}}"], "path": ["api","service-types","1"] }
           }
         },
         {
@@ -194,9 +194,9 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Diagnostico\",\n  \"descripcion\": \"Revision general del equipo\",\n  \"costoBase\": 15000\n}"
+              "raw": "{\n  \"name\": \"Diagnostico\",\n  \"description\": \"Revision general del equipo\",\n  \"baseCost\": 15000\n}"
             },
-            "url": { "raw": "{{baseUrl}}/api/tiposervicios", "host": ["{{baseUrl}}"], "path": ["api","tiposervicios"] }
+            "url": { "raw": "{{baseUrl}}/api/service-types", "host": ["{{baseUrl}}"], "path": ["api","service-types"] }
           }
         },
         {
@@ -209,9 +209,9 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Diagnostico Completo\",\n  \"descripcion\": \"Revision exhaustiva del equipo\",\n  \"costoBase\": 20000\n}"
+              "raw": "{\n  \"name\": \"Diagnostico Completo\",\n  \"description\": \"Revision exhaustiva del equipo\",\n  \"baseCost\": 20000\n}"
             },
-            "url": { "raw": "{{baseUrl}}/api/tiposervicios/1", "host": ["{{baseUrl}}"], "path": ["api","tiposervicios","1"] }
+            "url": { "raw": "{{baseUrl}}/api/service-types/1", "host": ["{{baseUrl}}"], "path": ["api","service-types","1"] }
           }
         },
         {
@@ -219,7 +219,7 @@
           "request": {
             "method": "DELETE",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": { "raw": "{{baseUrl}}/api/tiposervicios/1", "host": ["{{baseUrl}}"], "path": ["api","tiposervicios","1"] }
+            "url": { "raw": "{{baseUrl}}/api/service-types/1", "host": ["{{baseUrl}}"], "path": ["api","service-types","1"] }
           }
         }
       ]
@@ -232,7 +232,7 @@
           "request": {
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": { "raw": "{{baseUrl}}/api/mantenciones", "host": ["{{baseUrl}}"], "path": ["api","mantenciones"] }
+            "url": { "raw": "{{baseUrl}}/api/maintenance-tickets", "host": ["{{baseUrl}}"], "path": ["api","maintenance-tickets"] }
           }
         },
         {
@@ -240,7 +240,7 @@
           "request": {
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": { "raw": "{{baseUrl}}/api/mantenciones/00000000-0000-0000-0000-000000000000", "host": ["{{baseUrl}}"], "path": ["api","mantenciones","00000000-0000-0000-0000-000000000000"] }
+            "url": { "raw": "{{baseUrl}}/api/maintenance-tickets/00000000-0000-0000-0000-000000000000", "host": ["{{baseUrl}}"], "path": ["api","maintenance-tickets","00000000-0000-0000-0000-000000000000"] }
           }
         },
         {
@@ -248,7 +248,7 @@
           "request": {
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": { "raw": "{{baseUrl}}/api/mantenciones/pc/00000000-0000-0000-0000-000000000000", "host": ["{{baseUrl}}"], "path": ["api","mantenciones","pc","00000000-0000-0000-0000-000000000000"] }
+            "url": { "raw": "{{baseUrl}}/api/maintenance-tickets/computer/00000000-0000-0000-0000-000000000000", "host": ["{{baseUrl}}"], "path": ["api","maintenance-tickets","computer","00000000-0000-0000-0000-000000000000"] }
           }
         },
         {
@@ -261,9 +261,9 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"idPc\": \"00000000-0000-0000-0000-000000000000\",\n  \"motivo\": \"El equipo no enciende\",\n  \"tipoServicio\": \"REPARACION\"\n}"
+              "raw": "{\n  \"computerId\": \"00000000-0000-0000-0000-000000000000\",\n  \"reason\": \"El equipo no enciende\",\n  \"serviceType\": \"REPAIR\"\n}"
             },
-            "url": { "raw": "{{baseUrl}}/api/mantenciones", "host": ["{{baseUrl}}"], "path": ["api","mantenciones"] }
+            "url": { "raw": "{{baseUrl}}/api/maintenance-tickets", "host": ["{{baseUrl}}"], "path": ["api","maintenance-tickets"] }
           }
         },
         {
@@ -276,9 +276,9 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"idPc\": \"00000000-0000-0000-0000-000000000000\",\n  \"motivo\": \"El equipo no enciende - actualizado\",\n  \"tipoServicio\": \"LIMPIEZA_PROFUNDA\"\n}"
+              "raw": "{\n  \"computerId\": \"00000000-0000-0000-0000-000000000000\",\n  \"reason\": \"El equipo no enciende - actualizado\",\n  \"serviceType\": \"DEEP_CLEANING\"\n}"
             },
-            "url": { "raw": "{{baseUrl}}/api/mantenciones/00000000-0000-0000-0000-000000000000", "host": ["{{baseUrl}}"], "path": ["api","mantenciones","00000000-0000-0000-0000-000000000000"] }
+            "url": { "raw": "{{baseUrl}}/api/maintenance-tickets/00000000-0000-0000-0000-000000000000", "host": ["{{baseUrl}}"], "path": ["api","maintenance-tickets","00000000-0000-0000-0000-000000000000"] }
           }
         },
         {
@@ -286,7 +286,7 @@
           "request": {
             "method": "PUT",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": { "raw": "{{baseUrl}}/api/mantenciones/00000000-0000-0000-0000-000000000000/completar", "host": ["{{baseUrl}}"], "path": ["api","mantenciones","00000000-0000-0000-0000-000000000000","completar"] }
+            "url": { "raw": "{{baseUrl}}/api/maintenance-tickets/00000000-0000-0000-0000-000000000000/complete", "host": ["{{baseUrl}}"], "path": ["api","maintenance-tickets","00000000-0000-0000-0000-000000000000","complete"] }
           }
         },
         {
@@ -294,7 +294,7 @@
           "request": {
             "method": "DELETE",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": { "raw": "{{baseUrl}}/api/mantenciones/00000000-0000-0000-0000-000000000000", "host": ["{{baseUrl}}"], "path": ["api","mantenciones","00000000-0000-0000-0000-000000000000"] }
+            "url": { "raw": "{{baseUrl}}/api/maintenance-tickets/00000000-0000-0000-0000-000000000000", "host": ["{{baseUrl}}"], "path": ["api","maintenance-tickets","00000000-0000-0000-0000-000000000000"] }
           }
         }
       ]

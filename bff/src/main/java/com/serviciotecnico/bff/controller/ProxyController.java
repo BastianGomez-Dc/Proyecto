@@ -25,16 +25,16 @@ public class ProxyController {
     private final Map<String, String> routes = new LinkedHashMap<>();
 
     public ProxyController(RestTemplate restTemplate,
-            @Value("${usuarios.service.url}") String usuariosUrl,
-            @Value("${computador.service.url}") String computadorUrl,
-            @Value("${tiposervicio.service.url}") String tiposervicioUrl,
-            @Value("${mantencion.service.url}") String mantencionUrl) {
+            @Value("${customer.service.url}") String customerUrl,
+            @Value("${computer.service.url}") String computerUrl,
+            @Value("${servicetype.service.url}") String serviceTypeUrl,
+            @Value("${maintenance.service.url}") String maintenanceUrl) {
         this.restTemplate = restTemplate;
-        routes.put("/api/auth", usuariosUrl);
-        routes.put("/api/usuarios", usuariosUrl);
-        routes.put("/api/computadores", computadorUrl);
-        routes.put("/api/tiposervicios", tiposervicioUrl);
-        routes.put("/api/mantenciones", mantencionUrl);
+        routes.put("/api/auth", customerUrl);
+        routes.put("/api/customers", customerUrl);
+        routes.put("/api/computers", computerUrl);
+        routes.put("/api/service-types", serviceTypeUrl);
+        routes.put("/api/maintenance-tickets", maintenanceUrl);
     }
 
     @RequestMapping("/api/**")
